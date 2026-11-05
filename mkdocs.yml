@@ -52,15 +52,16 @@ nav:
       - "Example: acp-meridian": guides/acp-meridian.md
       - Testing: guides/testing.md
       - Troubleshooting: guides/troubleshooting.md
-  - HarnessClient API: harness-client.md
-  - Runtimes:
+  - Harness Client: harness-client.md
+  - Harness Runtimes:
     - runtimes/index.md
     - Runtime Configuration: runtimes/configuration.md
     - Goose: runtimes/goose.md
     - Codex: runtimes/codex.md
     - OpenCode: runtimes/opencode.md
     - Registry Agents: runtimes/registry.md
-  - Configuring the Agent:
+  - Configuration:
+    - Properties: properties.md
     - Models and Providers: configuration/models.md
     - MCP Servers: configuration/mcp-servers.md
     - Skills: configuration/skills.md
@@ -71,7 +72,6 @@ nav:
     - HTTP Endpoint: integrations/http-endpoint.md
     - Terminal Console: integrations/console.md
     - Observability: integrations/observability.md
-  - Properties: properties.md
   - Changes: changes.md
 
 markdown_extensions:

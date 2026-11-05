@@ -21,9 +21,9 @@ Java 21 is required. Use the Maven wrapper:
 ./mvnw install                                  # build + all tests except the live-agent ones (also needed before running the sample)
 ./mvnw test                                     # all tests; live-agent suites are opt-in and skip by default
 ./mvnw test -Dspring-ai-acp-harness-client.test.live=true      # also run the live-agent suites (spends real tokens)
-./mvnw -pl spring-ai-acp-harness-client-core test                                    # one module
-./mvnw -pl spring-ai-acp-harness-client-core test -Dtest=ConfigResolverTests            # one class
-./mvnw -pl spring-ai-acp-harness-client-core test -Dtest=ConfigResolverTests#someMethod # one method
+./mvnw -pl spring-ai-acp-harness-client test                                    # one module
+./mvnw -pl spring-ai-acp-harness-client test -Dtest=ConfigResolverTests            # one class
+./mvnw -pl spring-ai-acp-harness-client test -Dtest=ConfigResolverTests#someMethod # one method
 ./mvnw spring-javaformat:apply                  # format; the build fails on unformatted code
 ./mvnw -pl samples/smoke-app spring-boot:run -Dspring-boot.run.arguments=--spring.ai.acp.harness.runtime=codex   # goose|codex|opencode|gemini
 ```
@@ -67,11 +67,15 @@ Java 21 is required. Use the Maven wrapper:
 
 Naming: types on the client side say `AcpHarnessClient`; types that describe the ACP agent say `AcpAgent`.
 
-Module dependency shape: `AcpHarnessClient` API → `AcpHarnessClientPool` → `spring-ai-acp-harness-client-core` →
+Folder layout: `runtimes/`, `auto-configurations/`, `starters/` and `integrations/` (ai, console,
+mcp-oauth) hold the modules described below; core, test support and `samples/` stay at the root.
+Every nested module names its parent with `<relativePath>../../pom.xml</relativePath>`.
+
+Module dependency shape: `AcpHarnessClient` API → `AcpHarnessClientPool` → `spring-ai-acp-harness-client` →
 `acp-core` SDK → agent subprocess (stdio) or supervised `goose serve` (our own
 `SupervisedWebSocketTransport`).
 
-- **spring-ai-acp-harness-client-core**: `client` (fluent `AcpHarnessClient`, pool), `session` (optional session
+- **spring-ai-acp-harness-client**: `client` (fluent `AcpHarnessClient`, pool), `session` (optional session
   ops, gated by capability), `turn` + `event` (demultiplexing session updates into
   `AcpAgentEvent`; exactly one terminal event per turn), `config` (`ConfigResolver`),
   `permission`, `mcp` (credential-holding loopback proxy), `workspace` (jail for fs/terminal),
@@ -91,7 +95,7 @@ Module dependency shape: `AcpHarnessClient` API → `AcpHarnessClientPool` → `
 - **spring-ai-acp-harness-client-mcp-oauth**: per-user MCP-spec OAuth (`auth: oauth` on a server).
   `OAuth2McpCredentialsProvider` bridges a session's principal to Spring Security's
   `OAuth2AuthorizedClientService`; discovery/DCR/`resource=` come from mcp-security (pinned,
-  Spring AI excluded). Carries its own auto-configuration, unlike `spring-ai-acp-harness-client-ai`, so Spring
+  Spring AI excluded). Carries its own auto-configuration, unlike `spring-ai-acp-harness-client-chatmodel`, so Spring
   Security stays out of apps that don't add it. `mode: web` redirects via Spring Security;
   `mode: local` (terminal apps) runs a loopback browser sign-in (`LoopbackSignIn`) and keeps
   state in a mode-600 file.
@@ -103,7 +107,7 @@ Module dependency shape: `AcpHarnessClient` API → `AcpHarnessClientPool` → `
   leaves; Ctrl-C during a turn disposes the subscription (= `session/cancel`). Also the
   `PermissionPrompt` behind `permissions.policy: ask`. Tests use JLine's `DumbTerminal`
   directly: `TerminalBuilder` over streams opens a pty whose output is pumped asynchronously.
-- **spring-ai-acp-harness-client-ai**: `AcpChatModel` adapter (a named session sends only unheard messages;
+- **spring-ai-acp-harness-client-chatmodel**: `AcpChatModel` adapter (a named session sends only unheard messages;
   unnamed sends full history).
 - **spring-ai-acp-harness-client-test**: `AcpAgentRuntimeContract` (the real definition of the abstraction,
   extended once per adapter), `AcpAgentProbe` (gates suites on a real session, not `--version`),

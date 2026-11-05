@@ -68,7 +68,7 @@ All properties live under `spring.ai.acp.harness` (or at the top level of a file
 | `spring.ai.acp.harness.protocol.max-version` | `1` | Highest ACP version offered. v2 is refused. |
 | `spring.ai.acp.harness.protocol.strict` | `false` | Fail, rather than clamp, when an agent answers a version it was not offered. |
 | `spring.ai.acp.harness.observations.enabled` | `true` | Micrometer observations, when Micrometer is present. |
-| `spring.ai.acp.harness.chat-model.enabled` | `true` | The `AcpChatModel` bean, when `spring-ai-acp-harness-client-ai` is present. |
+| `spring.ai.acp.harness.chat-model.enabled` | `true` | The `AcpChatModel` bean, when `spring-ai-acp-harness-client-chatmodel` is present. |
 
 ## Registry
 

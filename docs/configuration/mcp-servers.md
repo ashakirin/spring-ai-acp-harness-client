@@ -104,7 +104,7 @@ The upstream is read once, when the session opens, and must be HTTPS (plain HTTP
 
 ## Per-user OAuth
 
-For MCP servers that implement the MCP authorization spec, add `spring-ai-acp-harness-client-mcp-oauth` and mark the server `auth: oauth`. Authorization-server discovery, dynamic client registration, PKCE and the `resource` parameter are handled for you; each user signs in once per server, and tokens are refreshed as needed.
+For MCP servers that implement the MCP authorization spec, add `spring-ai-acp-harness-client-mcp-oauth` and mark the server `auth: oauth`. Authorization-server discovery, dynamic client registration, PKCE and the `resource` parameter are handled for you; each user signs in once per server, and tokens are refreshed as needed. Such a server must have a `url`: it names the resource whose authorization server the client registers with, and an `auth: oauth` server declared without one is refused at startup.
 
 ```xml title="pom.xml"
 <dependency>

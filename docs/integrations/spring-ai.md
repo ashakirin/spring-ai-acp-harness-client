@@ -1,6 +1,6 @@
 # Spring AI ChatModel
 
-Add `spring-ai-acp-harness-client-ai` and an `AcpChatModel` bean appears wherever a Spring AI application looks for a `ChatModel`:
+Add `spring-ai-acp-harness-client-chatmodel` and an `AcpChatModel` bean appears wherever a Spring AI application looks for a `ChatModel`:
 
 ```java
 ChatClient chat = ChatClient.create(chatModel);
