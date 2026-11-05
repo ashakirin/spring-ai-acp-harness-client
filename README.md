@@ -267,7 +267,7 @@ ChatResponse response = chatModel.call(new Prompt("Review the pending changes",
         AcpChatOptions.builder().session("review-123").mode("plan").build()));
 ```
 
-Add `spring-ai-acp-harness-client-ai` and the agent appears wherever a Spring AI application already looks for
+Add `spring-ai-acp-harness-client-chatmodel` and the agent appears wherever a Spring AI application already looks for
 a model. It is an adapter rather than a wrapper, because the two models disagree about who owns the
 conversation: a chat completion is stateless and resends the history every call, while an ACP session
 holds it — along with a file tree, a plan and tool results no message list can carry. So a named

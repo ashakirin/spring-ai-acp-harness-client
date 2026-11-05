@@ -55,6 +55,13 @@ All notable changes to Spring AI ACP Harness Client are documented here. The pro
   naming it; and an `auth: oauth` server declared without a `url` is refused when the credentials
   provider is built rather than when the first user's session opens. For a contributor, `.mvn/jvm.config` now opens the javac internals Error Prone needs, and
   `spring-boot-configuration-processor` is named on the compiler's processor path.
+- **Breaking:** the core library is now the artifact `spring-ai-acp-harness-client`, dropping the
+  `-core` suffix, the Spring AI `ChatModel` adapter is `spring-ai-acp-harness-client-chatmodel`
+  instead of `-ai`, and the parent POM is published as `spring-ai-acp-harness-client-parent`, so each
+  name says what it is. Applications use a starter and rarely name the core artifact; one that names
+  either changes the artifact id. Java packages are unchanged. The modules are also grouped into `runtimes/`,
+  `auto-configurations/`, `starters/` and `integrations/` folders in the repository, which
+  changes no artifact id.
 - Snapshots are published to the Maven Central snapshot repository, and releases will go to Maven
   Central. Versions up to 0.5.0 remain in the Artifact Registry repository.
 - The reference documentation moved from a single `docs/user-guide.html` to a versioned MkDocs

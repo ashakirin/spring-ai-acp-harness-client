@@ -28,6 +28,13 @@ suite:
 ./mvnw clean test
 ```
 
+The modules are grouped by role: the library in `spring-ai-acp-harness-client`, agent adapters
+under `runtimes/`, Boot support under `auto-configurations/` and `starters/`, the Spring AI
+`ChatModel`, terminal console and MCP OAuth under `integrations/`, test support in
+`spring-ai-acp-harness-client-test` and a sample under `samples/`. Every package of a published
+module is `@NullMarked` and NullAway checks main code during compilation; a new package needs its
+own `package-info.java`. Build with an OpenJDK 21 such as Temurin, as CI does.
+
 JaCoCo runs during `verify` and writes coverage reports under `target/site/jacoco` per
 module. Analyze dependency usage with `./mvnw dependency:analyze`; keep the declared
 dependencies intentional.

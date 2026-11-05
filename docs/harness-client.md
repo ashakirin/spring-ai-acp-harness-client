@@ -2,6 +2,8 @@
 
 Every call starts with `prompt()` and describes one *turn*. Nothing is sent until `call()` or `stream()`.
 
+The API is `@NullMarked` ([JSpecify](https://jspecify.dev)): a reference is non-null unless it is annotated `@Nullable`, and the build checks that, so where a method says `@Nullable` the null is real and where it does not you need no check. An IDE that reads JSpecify annotations shows the same.
+
 ## Blocking and streaming
 
 ```java

@@ -48,7 +48,7 @@ config:
 ---
 flowchart TD
     app["<b>Your application</b><br/>AcpHarnessClient · AcpAgentSessions · AcpChatModel (Spring AI) · optional HTTP endpoint"]
-    core["<b>spring-ai-acp-harness-client-core</b><br/>connection pool · session registry · config negotiation · permission policy<br/>MCP credential proxy · skill installer · workspace jail · observations"]
+    core["<b>spring-ai-acp-harness-client</b><br/>connection pool · session registry · config negotiation · permission policy<br/>MCP credential proxy · skill installer · workspace jail · observations"]
     subgraph adapters["Runtime adapters"]
         direction LR
         goose["<b>goose</b><br/>stdio or WebSocket"]
@@ -84,9 +84,10 @@ ACP standardizes the *conversation*, not the *provisioning*. So each property be
 | `spring-ai-acp-harness-client-boot-starter-opencode` | Starter plus the OpenCode adapter |
 | `spring-ai-acp-harness-client-boot-starter-registry` | Starter plus the registry runtime: any agent the ACP registry publishes |
 | `spring-ai-acp-harness-client-boot-starter` | Core and auto-configuration with *no* agent (for bringing your own `AcpAgentRuntime`) |
-| `spring-ai-acp-harness-client-ai` | `AcpChatModel`: the agent as a Spring AI `ChatModel` |
+| `spring-ai-acp-harness-client` | The library itself, without Spring Boot: `AcpHarnessClient`, sessions, configuration, MCP proxy, workspace |
+| `spring-ai-acp-harness-client-chatmodel` | `AcpChatModel`: the agent as a Spring AI `ChatModel` |
 | `spring-ai-acp-harness-client-mcp-oauth` | Per-user OAuth sign-in to MCP servers (Spring Security) |
 | `spring-ai-acp-harness-client-console` | A terminal chat over the agent, for prototyping it (JLine); answers `policy: ask` |
 | `spring-ai-acp-harness-client-test` | `ScriptedAcpAgent`, `AcpAgentProbe`, and the `AcpAgentRuntimeContract` conformance suite |
 
-The starters bring in `spring-ai-acp-harness-client-core`, `spring-ai-acp-harness-client-boot-autoconfigure` and the matching `spring-ai-acp-harness-client-runtime-*` adapter, so applications rarely name those directly.
+The starters bring in `spring-ai-acp-harness-client`, `spring-ai-acp-harness-client-boot-autoconfigure` and the matching `spring-ai-acp-harness-client-runtime-*` adapter, so applications rarely name those directly.
