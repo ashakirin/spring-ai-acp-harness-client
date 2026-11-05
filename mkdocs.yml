@@ -52,7 +52,7 @@ nav:
       - "Example: acp-meridian": guides/acp-meridian.md
       - Testing: guides/testing.md
       - Troubleshooting: guides/troubleshooting.md
-  - Client API: harness-client.md
+  - HarnessClient API: harness-client.md
   - Runtimes:
     - runtimes/index.md
     - Runtime Configuration: runtimes/configuration.md
