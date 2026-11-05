@@ -14,13 +14,22 @@ import io.micrometer.observation.docs.ObservationDocumentation;
  * is an argument.
  *
  * <p>
+ * Names follow Spring AI's rule: an OpenTelemetry GenAI key where one means the same
+ * thing ({@code gen_ai.response.model}, with Spring AI's {@code none} for an absent
+ * value), and otherwise a key scoped under the observation's own name,
+ * {@code spring.ai.acp.harness}. Each observation also carries {@code spring.ai.kind},
+ * the tag Spring AI puts on its chat client, advisor, tool call and vector store
+ * observations, so a breakdown by kind includes the harness beside them. No prefix is
+ * declared for the tags, since they deliberately come from three namespaces.
+ *
+ * <p>
  * The low-cardinality split is the part worth checking against before adding a tag.
- * {@code
- * acp.runtime} has three values, {@code acp.model} has as many as an operator configured
- * — one, usually — and {@code acp.outcome} has the stop reasons plus a handful of
- * exception names. A session name or a tool call id would have as many values as there
- * are conversations, so both are high-cardinality, where they become span attributes and
- * not meter dimensions.
+ * {@code spring.ai.acp.harness.runtime} has three values, {@code gen_ai.response.model}
+ * has as many as an operator configured — one, usually — and
+ * {@code spring.ai.acp.harness.outcome} has the stop reasons plus a handful of exception
+ * names. A session name or a tool call id would have as many values as there are
+ * conversations, so both are high-cardinality, where they become span attributes and not
+ * meter dimensions.
  */
 public enum AcpObservationDocumentation implements ObservationDocumentation {
 
@@ -29,11 +38,6 @@ public enum AcpObservationDocumentation implements ObservationDocumentation {
 		@Override
 		public Class<? extends ObservationConvention<? extends Observation.Context>> getDefaultConvention() {
 			return DefaultAcpHarnessTurnObservationConvention.class;
-		}
-
-		@Override
-		public String getPrefix() {
-			return "acp.turn";
 		}
 
 		@Override
@@ -55,11 +59,6 @@ public enum AcpObservationDocumentation implements ObservationDocumentation {
 		}
 
 		@Override
-		public String getPrefix() {
-			return "acp.tool.call";
-		}
-
-		@Override
 		public KeyName[] getLowCardinalityKeyNames() {
 			return ToolCallLowCardinalityKeys.values();
 		}
@@ -70,25 +69,53 @@ public enum AcpObservationDocumentation implements ObservationDocumentation {
 		}
 	};
 
+	/** The prefix every key of this library's own carries. */
+	public static final String PREFIX = "spring.ai.acp.harness";
+
+	/** The name of the turn observation. */
+	public static final String TURN_NAME = PREFIX + ".turn";
+
+	/** The name of the tool call observation. */
+	public static final String TOOL_CALL_NAME = PREFIX + ".tool.call";
+
+	/** Spring AI's own tag naming the kind of observation; shared with its components. */
+	public static final String SPRING_AI_KIND = "spring.ai.kind";
+
+	/** The {@code spring.ai.kind} of a turn. */
+	public static final String TURN_KIND = "acp_harness_turn";
+
+	/** The {@code spring.ai.kind} of a tool call. */
+	public static final String TOOL_CALL_KIND = "acp_harness_tool_call";
+
 	public enum TurnLowCardinalityKeys implements KeyName {
+
+		/** {@code spring.ai.kind}, always {@code acp_harness_turn}. */
+		SPRING_AI_KIND {
+			@Override
+			public String asString() {
+				return AcpObservationDocumentation.SPRING_AI_KIND;
+			}
+		},
 
 		/** The value of {@code spring.ai.acp.harness.runtime}. */
 		RUNTIME {
 			@Override
 			public String asString() {
-				return "acp.runtime";
+				return PREFIX + ".runtime";
 			}
 		},
 
 		/**
 		 * The model the session is really using — what the negotiated tier applied, not
-		 * what was requested. {@code unknown} when the agent kept its own default and
-		 * never said which.
+		 * what was requested. {@code none} when the agent kept its own default and never
+		 * said which, as Spring AI's chat models spell an absent value on this key. The
+		 * OpenTelemetry key, as those models tag it, so one breakdown by model covers
+		 * both.
 		 */
 		MODEL {
 			@Override
 			public String asString() {
-				return "acp.model";
+				return "gen_ai.response.model";
 			}
 		},
 
@@ -99,18 +126,19 @@ public enum AcpObservationDocumentation implements ObservationDocumentation {
 		SESSION_KIND {
 			@Override
 			public String asString() {
-				return "acp.session.kind";
+				return PREFIX + ".session.kind";
 			}
 		},
 
 		/**
 		 * The agent's stop reason, or the exception's simple name when the turn did not
-		 * reach one.
+		 * reach one. Not {@code gen_ai.response.finish_reasons}: Spring AI records that
+		 * as a high-cardinality list on the span, and this is one value on the meter.
 		 */
 		OUTCOME {
 			@Override
 			public String asString() {
-				return "acp.outcome";
+				return PREFIX + ".outcome";
 			}
 		}
 
@@ -122,7 +150,7 @@ public enum AcpObservationDocumentation implements ObservationDocumentation {
 		SESSION_NAME {
 			@Override
 			public String asString() {
-				return "acp.session.name";
+				return PREFIX + ".session.name";
 			}
 		},
 
@@ -130,7 +158,7 @@ public enum AcpObservationDocumentation implements ObservationDocumentation {
 		CONTEXT_USED {
 			@Override
 			public String asString() {
-				return "acp.context.used";
+				return PREFIX + ".context.used";
 			}
 
 			@Override
@@ -143,7 +171,7 @@ public enum AcpObservationDocumentation implements ObservationDocumentation {
 		CONTEXT_SIZE {
 			@Override
 			public String asString() {
-				return "acp.context.size";
+				return PREFIX + ".context.size";
 			}
 
 			@Override
@@ -156,7 +184,7 @@ public enum AcpObservationDocumentation implements ObservationDocumentation {
 		COST {
 			@Override
 			public String asString() {
-				return "acp.cost";
+				return PREFIX + ".cost";
 			}
 
 			@Override
@@ -169,10 +197,18 @@ public enum AcpObservationDocumentation implements ObservationDocumentation {
 
 	public enum ToolCallLowCardinalityKeys implements KeyName {
 
+		/** {@code spring.ai.kind}, always {@code acp_harness_tool_call}. */
+		SPRING_AI_KIND {
+			@Override
+			public String asString() {
+				return AcpObservationDocumentation.SPRING_AI_KIND;
+			}
+		},
+
 		RUNTIME {
 			@Override
 			public String asString() {
-				return "acp.runtime";
+				return PREFIX + ".runtime";
 			}
 		},
 
@@ -180,7 +216,7 @@ public enum AcpObservationDocumentation implements ObservationDocumentation {
 		KIND {
 			@Override
 			public String asString() {
-				return "acp.tool.kind";
+				return PREFIX + ".tool.kind";
 			}
 		},
 
@@ -191,7 +227,7 @@ public enum AcpObservationDocumentation implements ObservationDocumentation {
 		STATUS {
 			@Override
 			public String asString() {
-				return "acp.tool.status";
+				return PREFIX + ".tool.status";
 			}
 		}
 
@@ -206,14 +242,14 @@ public enum AcpObservationDocumentation implements ObservationDocumentation {
 		TITLE {
 			@Override
 			public String asString() {
-				return "acp.tool.title";
+				return PREFIX + ".tool.title";
 			}
 		},
 
 		TOOL_CALL_ID {
 			@Override
 			public String asString() {
-				return "acp.tool.id";
+				return PREFIX + ".tool.id";
 			}
 		}
 

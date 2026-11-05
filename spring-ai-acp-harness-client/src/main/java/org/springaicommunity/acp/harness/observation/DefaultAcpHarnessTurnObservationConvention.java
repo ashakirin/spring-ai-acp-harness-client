@@ -27,19 +27,23 @@ public class DefaultAcpHarnessTurnObservationConvention
 
 	@Override
 	public String getName() {
-		return "acp.turn";
+		return AcpObservationDocumentation.TURN_NAME;
 	}
 
 	@Override
 	public String getContextualName(AcpHarnessTurnObservationContext context) {
-		return "acp turn " + context.turn().runtimeId();
+		return "acp harness turn " + context.turn().runtimeId();
 	}
 
 	@Override
 	public KeyValues getLowCardinalityKeyValues(AcpHarnessTurnObservationContext context) {
 		AcpHarnessObservations.TurnContext turn = context.turn();
-		return KeyValues.of(TurnLowCardinalityKeys.RUNTIME.withValue(orUnknown(turn.runtimeId())),
-				TurnLowCardinalityKeys.MODEL.withValue(orUnknown(turn.model())),
+		String model = turn.model();
+		return KeyValues.of(TurnLowCardinalityKeys.SPRING_AI_KIND.withValue(AcpObservationDocumentation.TURN_KIND),
+				TurnLowCardinalityKeys.RUNTIME.withValue(orUnknown(turn.runtimeId())),
+				// Spring AI's spelling of "absent" on this shared key, so both land in
+				// one bucket.
+				TurnLowCardinalityKeys.MODEL.withValue(model == null || model.isBlank() ? KeyValue.NONE_VALUE : model),
 				TurnLowCardinalityKeys.SESSION_KIND.withValue(turn.ephemeral() ? "ephemeral" : "named"),
 				TurnLowCardinalityKeys.OUTCOME.withValue(orUnknown(context.outcome())));
 	}
