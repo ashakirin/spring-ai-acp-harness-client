@@ -136,6 +136,10 @@ All notable changes to Spring AI ACP Harness Client are documented here. The pro
 
 ### Fixed
 
+- A turn that exceeded `timeout` ended with `Failed` but never sent `session/cancel`, so the agent
+  kept working on the prompt, spending tokens on a result nobody received, and the next prompt on
+  the session could overlap with it. A timed-out turn now cancels the agent's turn, as a cancelled
+  stream already did ([#20](https://github.com/spring-ai-community/spring-ai-acp-harness-client/issues/20)).
 - A new session that failed while being configured, such as an unsupported model with
   `on-unsupported: fail`, stayed open on the agent until `session-ttl`, with its MCP route still
   live. In a pool these sessions used up capacity, so later turns were refused with a "holding its
