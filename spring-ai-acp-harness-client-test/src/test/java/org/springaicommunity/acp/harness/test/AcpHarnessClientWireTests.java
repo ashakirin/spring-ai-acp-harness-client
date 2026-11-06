@@ -1022,7 +1022,8 @@ class AcpHarnessClientWireTests {
 					client.prompt("hi").options(options -> options.timeout(Duration.ofMillis(500))).stream().events())
 				.thenConsumeWhile(event -> !(event instanceof AcpHarnessEvent.Failed))
 				.expectNextMatches(AcpHarnessEvent.Failed.class::isInstance)
-				.verifyComplete();
+				.expectComplete()
+				.verify(LIMIT);
 
 			Awaits.until(() -> agent.cancellations() == 1, LIMIT);
 		}

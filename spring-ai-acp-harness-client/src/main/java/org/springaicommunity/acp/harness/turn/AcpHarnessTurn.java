@@ -133,7 +133,8 @@ public final class AcpHarnessTurn {
 		// and the other becomes a no-op.
 		AtomicBoolean finished = new AtomicBoolean();
 		// Distinguishes "the consumer walked away" from "the turn ended on its own", so
-		// session/cancel is sent in the former case (and on a timeout), not the latter.
+		// onDispose sends session/cancel in the former case only.
+		// A timeout sends its own, from doOnError below.
 		AtomicBoolean cancelledByConsumer = new AtomicBoolean();
 		// The tool calls this turn reported as its plan, whose updates are then dropped.
 		Set<String> planCalls = ConcurrentHashMap.newKeySet();
