@@ -363,7 +363,8 @@ public final class AcpHarnessClientPool implements AcpHarnessClient {
 			slot = placeOrNull(who);
 		}
 		if (slot == null) {
-			throw new AcpHarnessClientException("Runtime '" + runtimeId + "' shares MCP servers across the sessions of "
+			throw new AcpHarnessCapacityException("Runtime '" + runtimeId
+					+ "' shares MCP servers across the sessions of "
 					+ "a process, so each process serves one user at a time, and all " + pool.maxProcesses()
 					+ " are serving others; close some sessions, or raise spring.ai.acp.harness.pool.max-processes");
 		}
@@ -443,7 +444,7 @@ public final class AcpHarnessClientPool implements AcpHarnessClient {
 			// plainly.
 			sweep();
 			if (best.load() >= pool.maxSessionsPerProcess()) {
-				throw new AcpHarnessClientException("Runtime '" + runtimeId + "' is holding its maximum of "
+				throw new AcpHarnessCapacityException("Runtime '" + runtimeId + "' is holding its maximum of "
 						+ pool.capacity() + " sessions (" + pool.maxProcesses() + " process(es) × "
 						+ pool.maxSessionsPerProcess() + "); close some, or raise spring.ai.acp.harness.pool");
 			}
@@ -609,6 +610,8 @@ public final class AcpHarnessClientPool implements AcpHarnessClient {
 
 		private @Nullable SessionPrincipal principal;
 
+		private @Nullable Duration busyWait;
+
 		@Override
 		public PromptSpec session(String name) {
 			this.sessionName = name;
@@ -618,6 +621,15 @@ public final class AcpHarnessClientPool implements AcpHarnessClient {
 		@Override
 		public PromptSpec principal(@Nullable SessionPrincipal principal) {
 			this.principal = principal;
+			return this;
+		}
+
+		@Override
+		public PromptSpec waitIfBusy(@Nullable Duration wait) {
+			if (wait != null && wait.isNegative()) {
+				throw new IllegalArgumentException("wait must not be negative but was " + wait);
+			}
+			this.busyWait = wait;
 			return this;
 		}
 
@@ -684,7 +696,7 @@ public final class AcpHarnessClientPool implements AcpHarnessClient {
 		}
 
 		private PromptSpec delegate(AcpHarnessClient client, @Nullable SessionPrincipal owner) {
-			PromptSpec spec = client.prompt().principal(owner);
+			PromptSpec spec = client.prompt().principal(owner).waitIfBusy(busyWait);
 			if (sessionName != null) {
 				spec = spec.session(sessionName);
 			}
